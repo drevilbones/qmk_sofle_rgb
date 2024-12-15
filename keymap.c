@@ -23,14 +23,28 @@ enum my_keycodes {
   MB1HLD = SAFE_RANGE
 };
 
+// A bunch of aliases for home row mod-taps to keep the layout pretty
+// Left-hand home row mods
+#define MT_A LSFT_T(KC_A)
+#define MT_S LCTL_T(KC_S)
+#define MT_D LGUI_T(KC_D)
+#define MT_F LALT_T(KC_F)
+
+// Right-hand home row mods
+#define MT_J LALT_T(KC_J)
+#define MT_K RGUI_T(KC_K)
+#define MT_L RCTL_T(KC_L)
+#define MT_SCLN RSFT_T(KC_SCLN)
+
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [0] = LAYOUT( //base
   QK_GESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSLS,
-  MO(2),    KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
+  MO(2),    KC_A,   MT_S,    MT_D,    MT_F,    KC_G,                      KC_H,    MT_J,   MT_K,    MT_L,    KC_SCLN, KC_QUOT,
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,  _______,   _______, KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-                    KC_LCTL, KC_LGUI, KC_LALT, LT(1,KC_SPC), KC_ENT,     KC_ENT, LT(1,KC_SPC),  KC_RALT, KC_LGUI, KC_RCTL
+                    KC_LCTL, KC_LGUI, KC_LBRC, LT(1,KC_SPC), KC_ENT,     KC_ENT, LT(1,KC_SPC),  KC_RBRC, KC_MINS, KC_EQL
 ),
 
 [1] = LAYOUT( //navigation
@@ -69,8 +83,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, KC_NUM,  XXXXXXX, XXXXXXX,XXXXXXX, _______,
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_CIRC, KC_P7,  KC_P8,   KC_P9,   KC_ASTR, XXXXXXX,
   TG(5),   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_MINS, KC_P4,  KC_P5,   KC_P6,   KC_EQL,  KC_PIPE,
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,_______,   _______,KC_PLUS, KC_P1,  KC_P2,   KC_P3,   KC_SLSH, _______,
-              _______, _______, _______, _______, _______,      _______, _______,  KC_P0,   KC_PDOT, _______
+  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,_______,   _______,KC_PLUS, KC_P1,  KC_P2,   KC_P3,   KC_SLSH, XXXXXXX,
+              XXXXXXX, XXXXXXX, XXXXXXX, _______, _______,      _______, _______,  KC_P0,   KC_PDOT, XXXXXXX
 ),
 
 /*
@@ -85,34 +99,34 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-// TODO: maybe make this output held status to oled?
-// MB1HLD: holds mouse button 1 until pushed again, useful for dragging and highlighting
-bool mb1held = false;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case MB1HLD:
-      if (record->event.pressed) {
-        if (mb1held) {
-          SEND_STRING(SS_UP(X_BTN1));
-          mb1held = false;
-        } else {
-          SEND_STRING(SS_DOWN(X_BTN1));
-          mb1held = true;
-        }
-      }
+
       return false;
     default:
       return true;
   }
 }
 
-// register our ms button 1 hold key as an official "mouse key"
+bool mb1held = false;
 bool is_mouse_record_user(uint16_t keycode, keyrecord_t* record) {
     switch(keycode) {
-        case MB1HLD:
-            return true;
-        default:
-            return false;
+      case MB1HLD:
+        if (record->event.pressed) {
+          if (mb1held) {
+            SEND_STRING(SS_UP(X_BTN1));
+            auto_mouse_toggle();
+            mb1held = false;
+          } else {
+            SEND_STRING(SS_DOWN(X_BTN1));
+            auto_mouse_toggle();
+            mb1held = true;
+          }
+        }
+        return true;
+      default:
+        return false;
     }
     return false;
 }
@@ -124,10 +138,20 @@ void pointing_device_init_user(void) {
 
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
-  if (clockwise) {
-    tap_code(MS_WHLD);
-  } else {
-    tap_code(MS_WHLU);
+  switch(get_highest_layer(layer_state)) {
+    case 2:
+      if (clockwise) {
+        tap_code(KC_VOLU);
+      } else {
+        tap_code(KC_VOLD);
+      }
+      break;
+    default:
+      if (clockwise) {
+        tap_code(MS_WHLD);
+      } else {
+        tap_code(MS_WHLU);
+      }
   }
   return false;
 }
@@ -192,9 +216,6 @@ void print_status(void) {
     }
 
     oled_write_P(PSTR("\n\n"), false);
-    oled_write_ln(get_u8_str(rgb_matrix_config.hsv.h, '0'), false);
-    oled_write_ln(get_u8_str(rgb_matrix_config.hsv.s, '0'), false);
-    oled_write_ln(get_u8_str(rgb_matrix_config.hsv.v, '0'), false);
 }
 
 
