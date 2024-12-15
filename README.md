@@ -1,3 +1,3 @@
 # QMK config for Sofle RGB 2.1 with Pimoroni Trackball
 
-![PXL_20241112_141416714](https://github.com/user-attachments/assets/e96172a4-596b-4e2a-890b-afe0d442b218)
+![PXL_20241127_013547836](https://github.com/user-attachments/assets/6767dcbc-8719-46ba-abb2-7161ed137e10)
