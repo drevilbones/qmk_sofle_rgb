@@ -102,7 +102,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case MB1HLD:
-
       return false;
     default:
       return true;
@@ -139,6 +138,13 @@ void pointing_device_init_user(void) {
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
   switch(get_highest_layer(layer_state)) {
+    case 1:
+      if (clockwise) {
+        tap_code(MS_WHLR);
+      } else {
+        tap_code(MS_WHLL);
+      }
+      break;sdf
     case 2:
       if (clockwise) {
         tap_code(KC_VOLU);
