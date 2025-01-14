@@ -48,11 +48,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [1] = LAYOUT( //games (basically disabling the tap-hold keys)
-  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-  MO(3),   _______,    KC_S,    KC_D,    KC_F, _______,                   _______,    KC_J,    KC_K,    KC_L, _______, _______,
-  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-                    _______, _______, KC_LALT, KC_SPC,  _______, _______, KC_SPC,  _______, _______, _______ 
+  QK_GESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
+  KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSLS,
+  MO(3),    KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
+  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,  _______,   _______, KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+                    KC_LCTL, MO(2), KC_LALT, KC_SPC,  KC_NO,     KC_ENT,  KC_SPC,  KC_RALT, MO(2),   KC_RCTL 
 ),
 
 [2] = LAYOUT( //navigation
@@ -67,8 +67,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, KC_F11,  
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, KC_F12,
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, _______,
-  _______, _______, _______, _______, _______, _______, _______, _______,_______, _______, _______, _______, _______, TG(3),
-                    _______, _______, _______, KC_MPLY, KC_MPRV, KC_MNXT, KC_MPLY,_______, _______, TG(6)
+  _______, _______, _______, _______, _______, _______, _______, _______,_______, _______, _______, _______, _______, TO(1),
+                    _______, TO(0),   _______, KC_MPLY, KC_MPRV, KC_MNXT, KC_MPLY,_______, _______, TG(6)
 ),
 
 [4] = LAYOUT( //mouse
@@ -146,14 +146,14 @@ void pointing_device_init_user(void) {
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
   switch(get_highest_layer(layer_state)) {
-    case 1:
+    case 2:
       if (clockwise) {
         tap_code(MS_WHLR);
       } else {
         tap_code(MS_WHLL);
       }
       break;
-    case 2:
+    case 1:
     case 3:
       if (clockwise) {
         tap_code(KC_VOLU);
@@ -176,7 +176,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
   uint8_t layer = get_highest_layer(layer_state);
   switch(layer) {
-    case 3: //games
+    case 1: //games
       rgb_matrix_set_color_all(RGB_RED);
       break;
     case 4: //mouse
@@ -195,7 +195,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
           }
       }
       break;
-
     default:
       rgb_matrix_set_color(0, RGB_OFF);
       rgb_matrix_set_color(36, RGB_OFF);
@@ -228,13 +227,13 @@ void print_status(void) {
             oled_write_P(PSTR("BASE\n"), false);
             break;        
         case 1:
-            oled_write_P(PSTR("NAV\n"), false);
+            oled_write_P(PSTR("GAMES\n"), false);
             break;
         case 2:
-            oled_write_P(PSTR("FN  \n"), false);
+            oled_write_P(PSTR("NAV  \n"), false);
             break;
         case 3:
-            oled_write_P(PSTR("GAMES"), false);
+            oled_write_P(PSTR("FUNC\n"), false);
             break;
         case 4:
             oled_write_P(PSTR("MOUSE"), false);
