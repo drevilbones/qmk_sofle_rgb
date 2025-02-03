@@ -40,7 +40,7 @@ enum my_keycodes {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [0] = LAYOUT( //base
-  QK_GESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
+  KC_ESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSLS,
   MO(3),    KC_A,   MT_S,    MT_D,    MT_F,    KC_G,                      KC_H,    MT_J,   MT_K,    MT_L,    KC_SCLN, KC_QUOT,
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,  _______,   _______, KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
@@ -48,7 +48,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [1] = LAYOUT( //games (basically disabling the tap-hold keys)
-  QK_GESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
+  KC_ESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSLS,
   MO(3),    KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,  _______,   _______, KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
@@ -64,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [3] = LAYOUT( //function
-  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, KC_F11,  
+  KC_TILD, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, KC_F11,  
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, KC_F12,
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, _______,
   _______, _______, _______, _______, _______, _______, _______, _______,_______, _______, _______, _______, _______, TO(1),
@@ -174,31 +174,36 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 // index 0 and 36: indicator LEDs
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+  hsv_t layer_color_hsv = {64, 255, 50}; //darker cyan-ish
   uint8_t layer = get_highest_layer(layer_state);
   switch(layer) {
     case 1: //games
-      rgb_matrix_set_color_all(RGB_RED);
+      layer_color_hsv =(hsv_t){HSV_RED};
       break;
     case 4: //mouse
       rgb_matrix_set_color(0, RGB_CYAN);
       break;
     case 6: //numpad
-      for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
-          for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
-              uint8_t index = g_led_config.matrix_co[row][col];
-
-              uint16_t kcatkml = keycode_at_keymap_location(layer, row, col);
-              if (index >= led_min && index < led_max && index != NO_LED) {
-                if (kcatkml == XXXXXXX) { rgb_matrix_set_color(index, RGB_OFF); } // if it's off, then LED is off
-                else { rgb_matrix_set_color(index, RGB_PURPLE); } // else it's a numpad key so it's purple
-              }
-          }
-      }
+      layer_color_hsv = (hsv_t){HSV_PURPLE};
       break;
     default:
       rgb_matrix_set_color(0, RGB_OFF);
       rgb_matrix_set_color(36, RGB_OFF);
-      break;
+      break;      
+  }
+
+  rgb_t lrgb = hsv_to_rgb(layer_color_hsv);
+
+  for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+    for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+        uint8_t index = g_led_config.matrix_co[row][col];
+
+        uint16_t kcatkml = keycode_at_keymap_location(layer, row, col);
+        if (index >= led_min && index < led_max && index != NO_LED) {
+          if (kcatkml == XXXXXXX) { rgb_matrix_set_color(index, RGB_OFF); } // if it's off, then LED is off
+          else { rgb_matrix_set_color(index, lrgb.r, lrgb.g, lrgb.b); } // else make it the right color
+        }
+    }
   }
   return false;
 }
@@ -230,7 +235,7 @@ void print_status(void) {
             oled_write_P(PSTR("GAMES\n"), false);
             break;
         case 2:
-            oled_write_P(PSTR("NAV  \n"), false);
+            oled_write_P(PSTR("NAV\n"), false);
             break;
         case 3:
             oled_write_P(PSTR("FUNC\n"), false);
