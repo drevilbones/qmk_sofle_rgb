@@ -40,7 +40,7 @@ enum my_keycodes {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [0] = LAYOUT( //base
-  QK_GESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
+  KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSLS,
   MO(3),    KC_A,   MT_S,    MT_D,    MT_F,    KC_G,                      KC_H,    MT_J,   MT_K,    MT_L,    KC_SCLN, KC_QUOT,
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,  _______,   _______, KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
@@ -48,7 +48,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [1] = LAYOUT( //games (basically disabling the tap-hold keys)
-  QK_GESC,  KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
+  KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSLS,
   MO(3),    KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,  _______,   _______, KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
@@ -56,7 +56,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [2] = LAYOUT( //navigation
-  KC_GRV,  _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______,  KC_DEL,
+  KC_TILD,  _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______,  KC_DEL,
   _______, _______, KC_PGUP, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
   _______, KC_HOME, KC_PGDN, KC_END,  _______, _______,                   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, _______,
   KC_CAPS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
@@ -64,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 
 [3] = LAYOUT( //function
-  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, KC_F11,  
+  KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, KC_F11,  
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, KC_F12,
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, _______,
   _______, _______, _______, _______, _______, _______, _______, _______,_______, _______, _______, _______, _______, TO(1),
@@ -215,6 +215,13 @@ uint8_t mod_config(uint8_t mod) {
 }
 #endif
 
+#ifdef CAPS_WORD_ENABLE
+bool capswd_active = false;
+
+void caps_word_set_user(bool active) {
+  capswd_active = active;
+}
+#endif
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_270; }
@@ -224,34 +231,34 @@ void print_status(void) {
     oled_write_ln_P(PSTR("LAYER"), false);
     switch (get_highest_layer(layer_state)) {
         case 0:
-            oled_write_P(PSTR("BASE\n"), false);
+            oled_write_P(PSTR("BASE"), false);
             break;        
         case 1:
-            oled_write_P(PSTR("GAMES\n"), false);
+            oled_write_P(PSTR("GAMES"), false);
             break;
         case 2:
-            oled_write_P(PSTR("NAV  \n"), false);
+            oled_write_P(PSTR("NAV"), false);
             break;
         case 3:
-            oled_write_P(PSTR("FUNC\n"), false);
+            oled_write_P(PSTR("FUNC"), false);
             break;
         case 4:
             oled_write_P(PSTR("MOUSE"), false);
             break;
         case 5:
-            oled_write_P(PSTR("RGB\n"), false);
+            oled_write_P(PSTR("RGB"), false);
             break;
         case 6:
-            oled_write_P(PSTR("NUM\n"), false);
+            oled_write_P(PSTR("NUM"), false);
             break;            
         default:
-            oled_write_ln_P(PSTR("???\n"), false);
+            oled_write_ln_P(PSTR("???"), false);
     }
 
-    oled_write_P(PSTR("\n\n"), false);
+    oled_write_P(PSTR("\n\n\n"), false);
 
     led_t led_usb_state = host_keyboard_led_state();
-    if (led_usb_state.caps_lock) {
+    if (led_usb_state.caps_lock || capswd_active) {
       oled_write_ln_P(PSTR("CAPS"), false);
     } else {
       oled_write_ln_P(PSTR("     "), false);
