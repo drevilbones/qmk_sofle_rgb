@@ -174,31 +174,36 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 // index 0 and 36: indicator LEDs
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+  hsv_t layer_color_hsv = {64, 255, 50}; //darker cyan-ish
   uint8_t layer = get_highest_layer(layer_state);
   switch(layer) {
     case 1: //games
-      rgb_matrix_set_color_all(RGB_RED);
+      layer_color_hsv =(hsv_t){HSV_RED};
       break;
     case 4: //mouse
       rgb_matrix_set_color(0, RGB_CYAN);
       break;
     case 6: //numpad
-      for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
-          for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
-              uint8_t index = g_led_config.matrix_co[row][col];
-
-              uint16_t kcatkml = keycode_at_keymap_location(layer, row, col);
-              if (index >= led_min && index < led_max && index != NO_LED) {
-                if (kcatkml == XXXXXXX) { rgb_matrix_set_color(index, RGB_OFF); } // if it's off, then LED is off
-                else { rgb_matrix_set_color(index, RGB_PURPLE); } // else it's a numpad key so it's purple
-              }
-          }
-      }
+      layer_color_hsv = (hsv_t){HSV_PURPLE};
       break;
     default:
       rgb_matrix_set_color(0, RGB_OFF);
       rgb_matrix_set_color(36, RGB_OFF);
-      break;
+      break;      
+  }
+
+  rgb_t lrgb = hsv_to_rgb(layer_color_hsv);
+
+  for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+    for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+        uint8_t index = g_led_config.matrix_co[row][col];
+
+        uint16_t kcatkml = keycode_at_keymap_location(layer, row, col);
+        if (index >= led_min && index < led_max && index != NO_LED) {
+          if (kcatkml == XXXXXXX) { rgb_matrix_set_color(index, RGB_OFF); } // if it's off, then LED is off
+          else { rgb_matrix_set_color(index, lrgb.r, lrgb.g, lrgb.b); } // else make it the right color
+        }
+    }
   }
   return false;
 }
