@@ -173,6 +173,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 
 // index 0 and 36: indicator LEDs
+// refactor indicator LED setting into the loop for efficiency
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
   hsv_t layer_color_hsv = (hsv_t){HSV_CYAN};
   layer_color_hsv = (hsv_t){layer_color_hsv.h, layer_color_hsv.s, 75};
@@ -180,6 +181,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
   switch(layer) {
     case 1: //games
       layer_color_hsv =(hsv_t){HSV_RED};
+      rgb_matrix_set_color(0, RGB_OFF);
+      rgb_matrix_set_color(36, RGB_OFF);
       break;
     case 4: //mouse
       rgb_matrix_set_color(0, RGB_CYAN);
