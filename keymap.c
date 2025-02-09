@@ -81,8 +81,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [5] = LAYOUT(//RGB LED
   _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-  RGB_MOD, RGB_SPI, RGB_VAI, RGB_HUI, RGB_SAI, _______,                   _______, _______, _______, _______, _______, _______,
-  _______, RGB_SPD, RGB_VAD, RGB_HUD, RGB_SAD, _______,                   _______, _______, _______, _______, _______, _______,
+  RGB_MOD, RGB_SPI, RGB_HUI, RGB_SAI, RGB_VAI, _______,                   _______, _______, _______, _______, _______, _______,
+  _______, RGB_SPD, RGB_HUD, RGB_SAD, RGB_VAD, _______,                   _______, _______, _______, _______, _______, _______,
   _______, _______, RGB_TOG, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
                     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
 ),
@@ -174,7 +174,8 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 // index 0 and 36: indicator LEDs
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-  hsv_t layer_color_hsv = {64, 255, 50}; //darker cyan-ish
+  hsv_t layer_color_hsv = (hsv_t){HSV_CYAN};
+  layer_color_hsv = (hsv_t){layer_color_hsv.h, layer_color_hsv.s, 75};
   uint8_t layer = get_highest_layer(layer_state);
   switch(layer) {
     case 1: //games
@@ -220,14 +221,6 @@ uint8_t mod_config(uint8_t mod) {
 }
 #endif
 
-#ifdef CAPS_WORD_ENABLE
-bool capswd_active = false;
-
-void caps_word_set_user(bool active) {
-  capswd_active = active;
-}
-#endif
-
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_270; }
 
@@ -236,25 +229,28 @@ void print_status(void) {
     oled_write_ln_P(PSTR("LAYER"), false);
     switch (get_highest_layer(layer_state)) {
         case 0:
-            oled_write_P(PSTR("BASE"), false);
+            oled_write_ln_P(PSTR("BASE"), false);
             break;        
         case 1:
-            oled_write_P(PSTR("GAMES"), false);
+            oled_write_ln_P(PSTR("GAMES"), false);
             break;
         case 2:
-            oled_write_P(PSTR("NAV"), false);
+            oled_write_ln_P(PSTR("NAV"), false);
             break;
         case 3:
-            oled_write_P(PSTR("FUNC"), false);
+            oled_write_ln_P(PSTR("FUNC"), false);
             break;
         case 4:
-            oled_write_P(PSTR("MOUSE"), false);
+            oled_write_ln_P(PSTR("MOUSE"), false);
             break;
         case 5:
-            oled_write_P(PSTR("RGB"), false);
+            oled_write_ln_P(PSTR("RGB"), false);
+            oled_write_ln(get_u8_str(rgb_matrix_config.hsv.h, '0'), false);
+            oled_write_ln(get_u8_str(rgb_matrix_config.hsv.s, '0'), false);
+            oled_write_ln(get_u8_str(rgb_matrix_config.hsv.v, '0'), false);
             break;
         case 6:
-            oled_write_P(PSTR("NUM"), false);
+            oled_write_ln_P(PSTR("NUM"), false);
             break;            
         default:
             oled_write_ln_P(PSTR("???"), false);
@@ -263,10 +259,10 @@ void print_status(void) {
     oled_write_P(PSTR("\n\n\n"), false);
 
     led_t led_usb_state = host_keyboard_led_state();
-    if (led_usb_state.caps_lock || capswd_active) {
+    if (led_usb_state.caps_lock) {
       oled_write_ln_P(PSTR("CAPS"), false);
     } else {
-      oled_write_ln_P(PSTR("     "), false);
+      oled_write_ln_P(PSTR("    "), false);
     }
 }
 
