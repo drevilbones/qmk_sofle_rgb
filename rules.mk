@@ -5,11 +5,11 @@ ENCODER_ENABLE = yes
 OLED_ENABLE = yes
 MOUSEKEY_ENABLE = yes
 EXTRAKEY_ENABLE = yes
-#POINTING_DEVICE_ENABLE = yes // trackball broke :(
-#POINTING_DEVICE_DRIVER = pimoroni_trackball
+POINTING_DEVICE_ENABLE = yes
+POINTING_DEVICE_DRIVER = pimoroni_trackball
 
 # if there's space (which there isn't)
-KEY_LOCK_ENABLE = yes
+KEY_LOCK_ENABLE = no
 CAPS_WORD_ENABLE = no
 CONSOLE_ENABLE = no
 VERBOSE = no

@@ -36,6 +36,9 @@ enum my_keycodes {
 #define MT_L RCTL_T(KC_L)
 #define MT_SCLN RSFT_T(KC_SCLN)
 
+// default layer color: dull cyan
+#define HSV_DEF 128, 255, 75
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -116,33 +119,36 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
-//bool mb1held = false;
-//bool is_mouse_record_user(uint16_t keycode, keyrecord_t* record) {
-//    switch(keycode) {
-//      case MB1HLD:
-//        if (record->event.pressed) {
-//          if (mb1held) {
-//            SEND_STRING(SS_UP(X_BTN1));
-//            //auto_mouse_toggle();
-//            mb1held = false;
-//          } else {
-//            SEND_STRING(SS_DOWN(X_BTN1));
-//            //auto_mouse_toggle();
-//            mb1held = true;
-//          }
-//        }
-//        return true;
-//      default:
-//        return false;
-//    }
-//    return false;
-//}
+bool mb1held = false;
+bool is_mouse_record_user(uint16_t keycode, keyrecord_t* record) {
+    switch(keycode) {
+      case MB1HLD:
+        if (record->event.pressed) {
+          if (mb1held) {
+            SEND_STRING(SS_UP(X_BTN1));
+            //auto_mouse_toggle();
+            mb1held = false;
+          } else {
+            SEND_STRING(SS_DOWN(X_BTN1));
+            //auto_mouse_toggle();
+            mb1held = true;
+          }
+        }
+        return true;
+      default:
+        return false;
+    }
+    return false;
+}
 
 
 void pointing_device_init_user(void) {
-  //set_auto_mouse_enable(true);
+  set_auto_mouse_enable(true);
 }
 
+void keyboard_post_init_user(void) {
+  rgb_matrix_sethsv(HSV_DEF);
+}
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
   switch(get_highest_layer(layer_state)) {
@@ -169,31 +175,38 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
       }
   }
   return false;
-}
+ }
 
 
 // index 0 and 36: indicator LEDs
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-  hsv_t layer_color_hsv = (hsv_t){HSV_CYAN};
-  layer_color_hsv = (hsv_t){layer_color_hsv.h, layer_color_hsv.s, 75};
+  hsv_t layer_color_hsv = (hsv_t){HSV_DEF};
   bool indicators = false;
   uint8_t layer = get_highest_layer(layer_state);
   switch(layer) {
     case 1: //games
       indicators = false;
       layer_color_hsv = (hsv_t){HSV_RED};
+      rgb_matrix_sethsv_noeeprom(HSV_RED);
+      break;
+    case 2: // nav
+      indicators = false;
+      layer_color_hsv = (hsv_t){HSV_GREEN};
       break;
     case 3: //func
       indicators = false;
+      layer_color_hsv = (hsv_t){HSV_ORANGE};
       break;
     case 4: //mouse
       indicators = true;
+      layer_color_hsv = (hsv_t){HSV_WHITE};
       break;
     case 6: //numpad
       indicators = false;
       layer_color_hsv = (hsv_t){HSV_PURPLE};
       break;
     default:
+      rgb_matrix_sethsv_noeeprom(HSV_DEF);
       break;      
   }
 
@@ -214,7 +227,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         uint16_t kcatkml = keycode_at_keymap_location(layer, row, col);
         if (index >= led_min && index < led_max && index != NO_LED) {
           if (kcatkml == XXXXXXX) { rgb_matrix_set_color(index, RGB_OFF); } // if the key isn't active, turn LED off
-          else if (kcatkml == KC_TRNS) { /* do nothing, just let it be the eeprom color */ }
+          else if (kcatkml == KC_TRNS) { /* do nothing, just let it be the default color */ }
           else { rgb_matrix_set_color(index, lrgb.r, lrgb.g, lrgb.b); } // else make it the right color
         }
     }
