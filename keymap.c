@@ -53,9 +53,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [1] = LAYOUT( //games (disabling the tap-hold keys and shifting wasd over to turn it into esdf)
   KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,   KC_8,    KC_9,    KC_0,    KC_BSPC,
   KC_TAB,   KC_T,   KC_Q,    KC_W,    KC_E,    KC_R,                      KC_Y,    KC_U,   KC_I,    KC_O,    KC_P,    KC_BSLS,
-  MO(3),    KC_G,   KC_A,    KC_S,    KC_D,    KC_F,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
+  KC_LCTL,  KC_G,   KC_A,    KC_S,    KC_D,    KC_F,                      KC_H,    KC_J,   KC_K,    KC_L,    KC_SCLN, KC_QUOT,
   KC_LSFT,  KC_B,   KC_Z,    KC_X,    KC_C,    KC_V,  _______,   _______, KC_N,    KC_M,   KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-                    KC_LCTL, MO(2), KC_LALT, KC_SPC,  KC_NO,     KC_ENT,  KC_SPC,  KC_RALT, MO(2),  QK_LOCK 
+                    KC_I,   MO(2), KC_LALT, KC_SPC,  MO(3),     KC_ENT,  KC_SPC,  KC_RALT, MO(2),   KC_EQL 
 ),
 
 [2] = LAYOUT( //navigation
@@ -63,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
   _______, _______, KC_HOME, KC_PGDN, KC_PGUP, KC_END,                    KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, _______,
   KC_CAPS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-                    _______, _______, _______, _______, _______,   MO(5), _______, _______, _______, _______
+                    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
 ),
 
 [3] = LAYOUT( //function
@@ -71,7 +71,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, KC_F12,
   _______, _______, _______, _______, _______, _______,                  _______, _______, _______, _______, _______, TO(0),
   _______, _______, _______, _______, _______, _______, _______, _______,_______, _______, _______, _______, _______, TO(1),
-                    _______, _______, _______, KC_MPLY, KC_MPRV, KC_MNXT, KC_MPLY,_______, _______, TG(6)
+                    _______, _______, _______, KC_MPLY, KC_MPRV, KC_MNXT, KC_MPLY,_______, _______, TG(5)
 ),
 
 [4] = LAYOUT( //mouse
@@ -82,18 +82,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
 ),
 
-[5] = LAYOUT(//RGB LED
-  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______,
-  RGB_MOD, RGB_SPI, RGB_HUI, RGB_SAI, RGB_VAI, _______,                   _______, _______, _______, _______, _______, _______,
-  _______, RGB_SPD, RGB_HUD, RGB_SAD, RGB_VAD, _______,                   _______, _______, _______, _______, _______, _______,
-  _______, _______, RGB_TOG, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-                    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
-),
-
-[6] = LAYOUT( //Numpad
+[5] = LAYOUT( //Numpad
   _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, KC_NUM,  XXXXXXX, XXXXXXX,XXXXXXX, _______,
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_CIRC, KC_P7,  KC_P8,   KC_P9,   KC_ASTR, XXXXXXX,
-  TG(6),   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_MINS, KC_P4,  KC_P5,   KC_P6,   KC_EQL,  KC_PIPE,
+  TG(5),   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_MINS, KC_P4,  KC_P5,   KC_P6,   KC_EQL,  KC_PIPE,
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______, _______, KC_PLUS, KC_P1,  KC_P2,   KC_P3,   KC_SLSH, XXXXXXX,
                     XXXXXXX, XXXXXXX, XXXXXXX, _______, _______, _______, _______, KC_P0,  KC_PDOT, XXXXXXX
 )
@@ -268,12 +260,6 @@ void print_status(void) {
             break;
         case 4:
             oled_write_ln_P(PSTR("MOUSE"), false);
-            break;
-        case 5:
-            oled_write_ln_P(PSTR("RGB"), false);
-            oled_write_ln(get_u8_str(rgb_matrix_config.hsv.h, '0'), false);
-            oled_write_ln(get_u8_str(rgb_matrix_config.hsv.s, '0'), false);
-            oled_write_ln(get_u8_str(rgb_matrix_config.hsv.v, '0'), false);
             break;
         case 6:
             oled_write_ln_P(PSTR("NUM"), false);
